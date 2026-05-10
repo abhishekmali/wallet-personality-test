@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔮 Wallet Personality Test
 
-## Getting Started
+An emotionally engaging, cinematic web experience that analyzes your Solana wallet behavior and transforms it into a psychologically accurate trader archetype.
 
-First, run the development server:
+Built with **Next.js 15**, **Framer Motion**, and **Helius API**.
+
+## 🚀 Features
+
+- **Live Wallet Analysis:** Fetches real on-chain data using Helius.
+- **Psychological Profiling:** Blends on-chain behavior with personality quiz insights.
+- **Cinematic UI:** Premium dark-mode aesthetic with fluid animations.
+- **Shareable Result Cards:** Generate and download your personality profile to share on social media.
+
+---
+
+## 🛠️ Setup Instructions
+
+To run this project locally, you will need a Solana RPC/API key from Helius.
+
+### 1. Get a Helius API Key
+1. Go to [helius.dev](https://helius.dev/).
+2. Sign up for a free account.
+3. Copy your **API Key** from the dashboard.
+
+### 2. Configure Environment Variables
+Create a file named `.env.local` in the root directory:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+touch .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `.env.local` and add your key:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+HELIUS_API_KEY=your_helius_api_key_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Install Dependencies
+```bash
+npm install
+```
 
-## Learn More
+### 4. Run Development Server
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🌐 Deployment (Vercel)
 
-## Deploy on Vercel
+1. Push your code to GitHub (the `.env.local` will be ignored automatically).
+2. Connect your repository to [Vercel](https://vercel.com/).
+3. In the Vercel project settings, go to **Environment Variables**.
+4. Add `HELIUS_API_KEY` with your actual key.
+5. Deploy!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🧩 Archetypes
+The app identifies 10 unique personality types, including:
+- **Diamond Hands Monk:** Inner peace through unrealized gains.
+- **Meme Coin Goblin:** Degen is a lifestyle, not a strategy.
+- **Panic Seller:** First to sell, last to profit.
+- **Exit Liquidity Provider:** Whales thank you for your service.
+- *...and more.*

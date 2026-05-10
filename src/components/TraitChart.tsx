@@ -16,7 +16,7 @@ export default function TraitChart({ traits, delay = 0 }: TraitChartProps) {
           key={trait.name}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: delay + i * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ delay: delay + i * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const }}
         >
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-sm font-medium text-text-secondary">{trait.name}</span>
@@ -31,7 +31,7 @@ export default function TraitChart({ traits, delay = 0 }: TraitChartProps) {
               }}
               initial={{ width: 0 }}
               animate={{ width: `${trait.value}%` }}
-              transition={{ delay: delay + i * 0.12 + 0.2, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ delay: delay + i * 0.12 + 0.2, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }}
             />
             {/* Shimmer effect */}
             <motion.div

@@ -3,20 +3,76 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
-import { analysisMessages } from '@/lib/quiz-data';
-import { getRandomArchetype } from '@/lib/archetypes';
+import { generateDemoWalletMetrics } from '@/lib/demo-generator';
+import { generatePersonalityResult } from '@/lib/personality-engine';
+import { WalletAnalysisApiResponse } from '@/lib/wallet-analysis';
+
+const walletMessages = [
+  { text: 'Connecting to Solana activity feed...', icon: '🔗' },
+  { text: 'Parsing transaction clusters...', icon: '📡' },
+  { text: 'Scoring risk and conviction signals...', icon: '🧠' },
+  { text: 'Applying emotional calibration...', icon: '🎯' },
+  { text: 'Generating final archetype mapping...', icon: '✨' },
+];
+
+const demoMessages = [
+  { text: 'Spinning up simulated wallet history...', icon: '🎮' },
+  { text: 'Modeling degen behavior profile...', icon: '🧪' },
+  { text: 'Running quiz-heavy personality mapping...', icon: '🧠' },
+  { text: 'Preparing demo archetype...', icon: '✨' },
+];
 
 export default function AnalysisSequence() {
-  const { setPhase, setArchetype, walletData, setAnalysisProgress } = useAppStore();
+  const { setPhase, setArchetype, setAnalysisResult, walletData, setAnalysisProgress, mode, quizAnswers } = useAppStore();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [showInsight, setShowInsight] = useState(false);
+  const [dynamicInsight, setDynamicInsight] = useState('Booting behavioral engine...');
 
-  const finishAnalysis = useCallback(() => {
-    const archetype = getRandomArchetype(walletData?.address);
-    setArchetype(archetype);
+  const messages = mode === 'wallet' ? walletMessages : demoMessages;
+
+  const finishAnalysis = useCallback(async () => {
+    let source: 'wallet' | 'simulated' = mode === 'wallet' ? 'wallet' : 'simulated';
+    let metrics;
+    let fallbackReason: string | undefined;
+    let insight = 'Behavior model calibrated successfully.';
+
+    if (mode === 'wallet' && walletData?.address) {
+      try {
+        const response = await fetch(`/api/wallet/analyze?address=${encodeURIComponent(walletData.address)}`);
+        const data: WalletAnalysisApiResponse & { error?: string } = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error ?? 'wallet-fetch-failed');
+        }
+        metrics = data.metrics;
+        source = data.source;
+        fallbackReason = data.fallbackReason;
+        insight = data.insights[0] ?? (data.source === 'wallet'
+          ? 'Live wallet activity analyzed successfully.'
+          : 'Live wallet feed unavailable. Using deterministic simulation for this run.');
+      } catch {
+        metrics = generateDemoWalletMetrics(quizAnswers);
+        source = 'simulated';
+        fallbackReason = 'Live wallet feed unavailable in this session. Used deterministic fallback signals.';
+        insight = 'Live wallet feed unavailable. Using deterministic fallback behavior model.';
+      }
+    } else {
+      metrics = generateDemoWalletMetrics(quizAnswers);
+      source = 'simulated';
+      insight = 'Demo simulation complete. Archetype mapped from quiz behavior.';
+    }
+
+    const result = generatePersonalityResult({
+      mode,
+      dataSource: source,
+      metrics,
+      quizAnswers,
+      fallbackReason,
+    });
+    setDynamicInsight(insight);
+    setAnalysisResult(result);
+    setArchetype(result.archetype);
     setPhase('reveal');
-  }, [walletData, setArchetype, setPhase]);
+  }, [mode, walletData, quizAnswers, setAnalysisResult, setArchetype, setPhase]);
 
   useEffect(() => {
     // Progress animation
@@ -26,27 +82,34 @@ export default function AnalysisSequence() {
           clearInterval(progressInterval);
           return 100;
         }
-        return p + 0.8;
+        const step = mode === 'wallet' ? 1 : 1.4;
+        return Math.min(100, p + step);
       });
     }, 100);
 
-    // Message cycling
-    const messageTimers = analysisMessages.map((msg, i) =>
+    const messageTimers = messages.map((msg, i) =>
       setTimeout(() => {
         setCurrentMessageIndex(i);
-        if (i === analysisMessages.length - 2) setShowInsight(true);
-      }, msg.delay)
+      }, i * 1800)
     );
 
-    // Complete after ~12s
-    const finishTimer = setTimeout(finishAnalysis, 12000);
+    const insightTimer = setTimeout(() => {
+      setDynamicInsight(mode === 'wallet' ? 'Detected elevated speculative behavior in wallet history.' : 'Simulated wallet profile ready for final reveal.');
+    }, 5200);
+
+    const finishTimer = setTimeout(finishAnalysis, mode === 'wallet' ? 9000 : 6200);
 
     return () => {
       clearInterval(progressInterval);
       messageTimers.forEach(clearTimeout);
+      clearTimeout(insightTimer);
       clearTimeout(finishTimer);
     };
-  }, [finishAnalysis, setAnalysisProgress]);
+  }, [finishAnalysis, mode, messages, setAnalysisProgress]);
+
+  useEffect(() => {
+    setAnalysisProgress(progress);
+  }, [progress, setAnalysisProgress]);
 
   return (
     <motion.div
@@ -114,7 +177,7 @@ export default function AnalysisSequence() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          Decoding Your Personality
+          {mode === 'wallet' ? 'Analyzing Real Wallet Behavior' : 'Running Demo Simulation'}
         </motion.h2>
 
         <motion.p
@@ -123,7 +186,7 @@ export default function AnalysisSequence() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          Analyzing on-chain behavior patterns...
+          {mode === 'wallet' ? 'Wallet signals drive most of your result. Quiz answers are only used for final calibration.' : 'Demo mode uses simulated wallet behavior plus quiz answers for a fast showcase.'}
         </motion.p>
 
         {/* Messages */}
@@ -137,25 +200,23 @@ export default function AnalysisSequence() {
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.4 }}
             >
-              <span className="text-xl">{analysisMessages[currentMessageIndex]?.icon}</span>
-              <span className="text-sm text-text-secondary">{analysisMessages[currentMessageIndex]?.text}</span>
+              <span className="text-xl">{messages[currentMessageIndex]?.icon}</span>
+              <span className="text-sm text-text-secondary">{messages[currentMessageIndex]?.text}</span>
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* Floating insight */}
         <AnimatePresence>
-          {showInsight && (
-            <motion.div
-              className="mt-8 glass-card px-5 py-3 inline-block"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              style={{ border: '1px solid rgba(124,92,255,0.2)' }}
-            >
-              <span className="text-xs text-primary">🔮 Pattern detected: Unusual conviction levels</span>
-            </motion.div>
-          )}
+          <motion.div
+            className="mt-8 glass-card px-5 py-3 inline-block"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ border: '1px solid rgba(124,92,255,0.2)' }}
+          >
+            <span className="text-xs text-primary">🔮 {dynamicInsight}</span>
+          </motion.div>
         </AnimatePresence>
       </div>
     </motion.div>

@@ -14,7 +14,7 @@ const heroVariants = {
   exit: {
     opacity: 0,
     y: -40,
-    transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] as const },
   },
 };
 
@@ -23,7 +23,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
 };
 
@@ -121,8 +121,8 @@ export default function LandingHero() {
           variants={itemVariants}
           className="text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Analyze your Solana wallet and discover the trader archetype hiding
-          behind your transactions. It&apos;s painfully accurate.
+          Run two distinct paths: real wallet analysis powered by onchain behavior,
+          or a fast demo mode with simulated signals for quick previews.
         </motion.p>
 
         {/* CTA Button */}
