@@ -109,7 +109,7 @@ export default function ResultsScreen() {
             <p className="text-xs text-text-muted mt-3">
               Confidence {analysisResult.confidence}% • {analysisResult.mode === 'wallet' ? 'Wallet signals are primary' : 'Demo quiz is primary'} • Calibration impact {Math.round(analysisResult.calibrationImpact * 100)}%
             </p>
-            {analysisResult.fallbackReason && <p className="text-xs text-danger mt-2">{analysisResult.fallbackReason}</p>}
+            {analysisResult.fallbackReason && <p className="text-xs text-text-muted mt-2">{analysisResult.fallbackReason}</p>}
           </motion.div>
 
           {/* Description Card */}

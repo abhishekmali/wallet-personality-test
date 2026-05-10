@@ -92,7 +92,12 @@ export async function GET(request: Request) {
 
   const heliusKey = process.env.HELIUS_API_KEY;
   if (!heliusKey) {
-    return Response.json({ error: 'Wallet analysis is unavailable. Missing HELIUS_API_KEY.' }, { status: 503 });
+    return Response.json({
+      source: 'simulated' as const,
+      metrics: simulatedWalletMetrics(address),
+      insights: ['Live API key not configured. Using deterministic wallet simulation for this session.'],
+      fallbackReason: 'HELIUS_API_KEY is not configured in this environment.',
+    });
   }
 
   try {

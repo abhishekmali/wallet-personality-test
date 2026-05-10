@@ -39,19 +39,21 @@ export default function AnalysisSequence() {
     if (mode === 'wallet' && walletData?.address) {
       try {
         const response = await fetch(`/api/wallet/analyze?address=${encodeURIComponent(walletData.address)}`);
+        const data: WalletAnalysisApiResponse & { error?: string } = await response.json();
         if (!response.ok) {
-          throw new Error('wallet-fetch-failed');
+          throw new Error(data.error ?? 'wallet-fetch-failed');
         }
-        const data: WalletAnalysisApiResponse = await response.json();
         metrics = data.metrics;
         source = data.source;
         fallbackReason = data.fallbackReason;
-        insight = data.insights[0] ?? insight;
+        insight = data.insights[0] ?? (data.source === 'wallet'
+          ? 'Live wallet activity analyzed successfully.'
+          : 'Live wallet feed unavailable. Using deterministic simulation for this run.');
       } catch {
         metrics = generateDemoWalletMetrics(quizAnswers);
         source = 'simulated';
-        fallbackReason = 'Live wallet analysis failed. Switched to deterministic fallback.';
-        insight = 'Live fetch failed. Using fallback behavior model.';
+        fallbackReason = 'Live wallet feed unavailable in this session. Used deterministic fallback signals.';
+        insight = 'Live wallet feed unavailable. Using deterministic fallback behavior model.';
       }
     } else {
       metrics = generateDemoWalletMetrics(quizAnswers);
@@ -81,9 +83,7 @@ export default function AnalysisSequence() {
           return 100;
         }
         const step = mode === 'wallet' ? 1 : 1.4;
-        const next = Math.min(100, p + step);
-        setAnalysisProgress(next);
-        return next;
+        return Math.min(100, p + step);
       });
     }, 100);
 
@@ -106,6 +106,10 @@ export default function AnalysisSequence() {
       clearTimeout(finishTimer);
     };
   }, [finishAnalysis, mode, messages, setAnalysisProgress]);
+
+  useEffect(() => {
+    setAnalysisProgress(progress);
+  }, [progress, setAnalysisProgress]);
 
   return (
     <motion.div
