@@ -83,7 +83,7 @@ export default function RevealTransition() {
           style={{ fontFamily: 'var(--font-display)', color: archetype.accentColor }}
           initial={{ opacity: 0, y: 30 }}
           animate={stage >= 3 ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }}
         >
           {archetype.title}
         </motion.h1>

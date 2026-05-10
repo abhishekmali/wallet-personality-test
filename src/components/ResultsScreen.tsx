@@ -11,12 +11,12 @@ const sectionVariants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.15, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { delay: i * 0.15, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
 };
 
 export default function ResultsScreen() {
-  const { archetype, walletData, setPhase, reset } = useAppStore();
+  const { archetype, analysisResult, reset } = useAppStore();
   const shareRef = useRef<HTMLDivElement>(null);
 
   const handleShare = useCallback(async () => {
@@ -41,7 +41,7 @@ export default function ResultsScreen() {
     navigator.clipboard.writeText(window.location.href);
   }, []);
 
-  if (!archetype) return null;
+  if (!archetype || !analysisResult) return null;
 
   return (
     <motion.div
@@ -73,7 +73,7 @@ export default function ResultsScreen() {
               transition={{ type: 'spring', delay: 0.2 }}
             >
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: archetype.accentColor }} />
-              Your Wallet Personality
+              {analysisResult.mode === 'wallet' ? 'Wallet-Derived Personality' : 'Demo Personality Simulation'}
             </motion.div>
 
             {/* Emoji */}
@@ -106,6 +106,10 @@ export default function ResultsScreen() {
             >
               &ldquo;{archetype.tagline}&rdquo;
             </motion.p>
+            <p className="text-xs text-text-muted mt-3">
+              Confidence {analysisResult.confidence}% • {analysisResult.mode === 'wallet' ? 'Wallet signals are primary' : 'Demo quiz is primary'} • Calibration impact {Math.round(analysisResult.calibrationImpact * 100)}%
+            </p>
+            {analysisResult.fallbackReason && <p className="text-xs text-danger mt-2">{analysisResult.fallbackReason}</p>}
           </motion.div>
 
           {/* Description Card */}
@@ -141,12 +145,39 @@ export default function ResultsScreen() {
             className="glass-card-strong p-6 sm:p-8 mb-6"
           >
             <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-6">Trait Breakdown</h3>
-            <TraitChart traits={archetype.traits} delay={0.5} />
+            <TraitChart traits={analysisResult.traitScores} delay={0.5} />
+          </motion.div>
+
+          <motion.div custom={4} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6 sm:p-8 mb-6">
+            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">Onchain Behavior</h3>
+            <ul className="space-y-2.5">
+              {analysisResult.onchainBehavior.map((signal) => (
+                <li key={signal} className="text-sm text-text-secondary">• {signal}</li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6 sm:p-8 mb-6">
+            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">Wallet Signals</h3>
+            <ul className="space-y-2.5">
+              {analysisResult.walletSignals.map((signal) => (
+                <li key={signal} className="text-sm text-text-secondary">• {signal}</li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div custom={6} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6 sm:p-8 mb-6">
+            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">Detected Patterns</h3>
+            <ul className="space-y-2.5">
+              {analysisResult.detectedPatterns.map((signal) => (
+                <li key={signal} className="text-sm text-text-secondary">• {signal}</li>
+              ))}
+            </ul>
           </motion.div>
 
           {/* Strengths & Weaknesses */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <motion.div custom={4} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6">
+            <motion.div custom={7} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6">
               <h3 className="text-sm font-semibold text-success uppercase tracking-wider mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-success" /> Strengths
               </h3>
@@ -165,7 +196,7 @@ export default function ResultsScreen() {
               </ul>
             </motion.div>
 
-            <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6">
+            <motion.div custom={8} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6">
               <h3 className="text-sm font-semibold text-danger uppercase tracking-wider mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-danger" /> Weaknesses
               </h3>
@@ -186,14 +217,19 @@ export default function ResultsScreen() {
           </div>
 
           {/* Emotional Tendency */}
-          <motion.div custom={6} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6 sm:p-8 mb-6">
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">Emotional Trading Pattern</h3>
-            <p className="text-text-secondary text-[15px] leading-relaxed">{archetype.emotionalTendency}</p>
+          <motion.div custom={9} variants={sectionVariants} initial="hidden" animate="visible" className="glass-card-strong p-6 sm:p-8 mb-6">
+            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">Emotional Trading Traits</h3>
+            <p className="text-text-secondary text-[15px] leading-relaxed mb-3">{archetype.emotionalTendency}</p>
+            <ul className="space-y-2">
+              {analysisResult.emotionalTraits.map((trait) => (
+                <li key={trait} className="text-sm text-text-secondary">• {trait}</li>
+              ))}
+            </ul>
           </motion.div>
 
           {/* Meme Observation */}
           <motion.div
-            custom={7}
+            custom={10}
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
@@ -210,7 +246,7 @@ export default function ResultsScreen() {
           </motion.div>
 
           {/* Watermark for share */}
-          <motion.div custom={8} variants={sectionVariants} initial="hidden" animate="visible" className="text-center mb-6">
+          <motion.div custom={11} variants={sectionVariants} initial="hidden" animate="visible" className="text-center mb-6">
             <p className="text-xs text-text-muted">walletpersonality.xyz</p>
           </motion.div>
         </div>

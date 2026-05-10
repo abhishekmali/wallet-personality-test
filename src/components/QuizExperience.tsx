@@ -6,7 +6,7 @@ import { useAppStore } from '@/lib/store';
 import { quizQuestions } from '@/lib/quiz-data';
 
 export default function QuizExperience() {
-  const { setPhase, setQuizAnswer, quizAnswers } = useAppStore();
+  const { setPhase, setQuizAnswer, mode } = useAppStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | null>(null);
 
@@ -40,6 +40,11 @@ export default function QuizExperience() {
       <div className="relative z-10 w-full max-w-xl">
         {/* Progress bar */}
         <div className="mb-12">
+          <p className="text-xs text-text-muted mb-4">
+            {mode === 'wallet'
+              ? 'Wallet signals are already analyzed. These final questions only refine emotional tendencies.'
+              : 'Demo mode: these answers drive a simulated personality profile.'}
+          </p>
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-text-muted">Question {currentIndex + 1} of {quizQuestions.length}</span>
             <span className="text-sm text-primary font-medium">{Math.round(progress)}%</span>
@@ -61,7 +66,7 @@ export default function QuizExperience() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }}
           >
             <h2 className="text-3xl sm:text-4xl font-bold mb-10 text-center" style={{ fontFamily: 'var(--font-display)' }}>
               {question.question}
@@ -140,7 +145,7 @@ export default function QuizExperience() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          Your answers personalize the result 🎯
+          {mode === 'wallet' ? 'Calibration layer: 10-20% influence 🎯' : 'Demo quiz drives your simulated persona 🎮'}
         </motion.p>
       </div>
     </motion.div>

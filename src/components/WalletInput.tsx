@@ -15,11 +15,11 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const } },
 };
 
 export default function WalletInput() {
-  const { setPhase, setWalletData } = useAppStore();
+  const { setPhase, setWalletData, setMode } = useAppStore();
   const [address, setAddress] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [error, setError] = useState('');
@@ -31,11 +31,13 @@ export default function WalletInput() {
     if (!trimmed) { setError('Please enter a wallet address'); return; }
     if (!isValidSolanaAddress(trimmed)) { setError("That doesn't look like a valid Solana address"); return; }
     setError('');
+    setMode('wallet');
     setWalletData({ address: trimmed });
     setPhase('quiz');
   };
 
   const handleDemoMode = () => {
+    setMode('demo');
     setWalletData({ address: 'DYw8jCTfBox68YP6bXzNRCqoLdR4UwgCq36zTFt8VJwZ' });
     setPhase('quiz');
   };
@@ -51,7 +53,7 @@ export default function WalletInput() {
 
         <motion.div variants={itemVariants} className="mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold mb-3" style={{ fontFamily: 'var(--font-display)' }}>Enter your wallet</h2>
-          <p className="text-text-secondary text-lg">Paste your Solana wallet address to begin the personality analysis.</p>
+          <p className="text-text-secondary text-lg">We analyze real Solana activity first, then ask a few calibration questions.</p>
         </motion.div>
 
         <motion.div variants={itemVariants} className="mb-6">
@@ -81,9 +83,13 @@ export default function WalletInput() {
 
         <motion.div variants={itemVariants}>
           <motion.button className="btn-secondary w-full text-base" onClick={handleDemoMode} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} id="demo-mode">
-            <span>✨ Try Demo Mode</span>
+            <span>✨ Try Demo Mode (Simulated Wallet)</span>
           </motion.button>
         </motion.div>
+
+        <motion.p variants={itemVariants} className="text-center text-xs text-text-muted mt-4">
+          Demo mode uses simulated wallet behavior for fast previews.
+        </motion.p>
 
         <motion.p variants={itemVariants} className="text-center text-xs text-text-muted mt-8">
           🔒 Read-only analysis. We never request signing permissions.
