@@ -79,3 +79,10 @@ export interface AnalysisMessage {
   icon: string;
   delay: number;
 }
+
+export interface WalletAnalysisApiResponse {
+  source: 'wallet' | 'simulated';
+  metrics: WalletMetrics;
+  insights: string[];
+  fallbackReason?: string;
+}

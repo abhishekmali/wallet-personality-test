@@ -5,8 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { generateDemoWalletMetrics } from '@/lib/demo-generator';
 import { generatePersonalityResult } from '@/lib/personality-engine';
-import { WalletMetrics } from '@/lib/types';
-import { WalletAnalysisApiResponse } from '@/lib/wallet-analysis';
+import { WalletMetrics, WalletAnalysisApiResponse } from '@/lib/types';
 
 const walletMessages = [
   { text: 'Connecting to Solana activity feed...', icon: '🔗' },

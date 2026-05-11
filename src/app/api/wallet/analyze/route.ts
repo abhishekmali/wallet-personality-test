@@ -1,5 +1,5 @@
 import { WalletMetrics } from '@/lib/types';
-import { simulatedWalletMetrics } from '@/lib/wallet-analysis';
+import { simulatedWalletMetrics } from '@/lib/demo-generator';
 
 type CacheEntry = {
   expiresAt: number;
@@ -17,50 +17,36 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
 
 function mapTransactionsToMetrics(transactions: any[]): WalletMetrics {
-  const timestamps = transactions.map((tx) => Number(tx.timestamp ?? 0)).filter((timestamp) => Number.isFinite(timestamp) && timestamp > 0);
-  const minTs = timestamps.length ? Math.min(...timestamps) : Math.floor(Date.now() / 1000);
-  const maxTs = timestamps.length ? Math.max(...timestamps) : Math.floor(Date.now() / 1000);
-  const ageDays = Math.max(1, (maxTs - minTs) / 86400);
-  const txFrequency = clamp((transactions.length / ageDays) * 8);
-
-  const tokenSymbols = new Set<string>();
+  const txCount = transactions.length;
+  
   let memeTransfers = 0;
-  let stablecoinTransfers = 0;
+  let swapTx = 0;
   let nftTx = 0;
   let defiTx = 0;
-  let swapTx = 0;
-  let lateNightTx = 0;
-  const knownStable = ['USDC', 'USDT', 'DAI', 'PYUSD'];
+  const tokenSymbols = new Set<string>();
+
   const memeKeywords = ['DOG', 'PEPE', 'BONK', 'WIF', 'CAT', 'INU', 'MEME'];
 
   for (const tx of transactions) {
-    const tokenTransfers = Array.isArray(tx.tokenTransfers) ? tx.tokenTransfers : [];
-    const source = String(tx.source ?? '').toLowerCase();
     const type = String(tx.type ?? '').toLowerCase();
-    const hour = new Date(Number(tx.timestamp ?? 0) * 1000).getUTCHours();
-
-    if (hour >= 0 && hour < 6) lateNightTx += 1;
-    if (source.includes('jupiter') || source.includes('raydium') || type.includes('swap')) swapTx += 1;
-    if (source.includes('marinade') || source.includes('kamino') || source.includes('drift') || source.includes('jito')) defiTx += 1;
+    const source = String(tx.source ?? '').toLowerCase();
+    
+    if (type.includes('swap') || source.includes('jupiter') || source.includes('raydium')) swapTx += 1;
     if (type.includes('nft') || source.includes('magiceden') || source.includes('tensor')) nftTx += 1;
-
-    for (const transfer of tokenTransfers) {
-      const symbol = String(transfer.tokenSymbol ?? transfer.symbol ?? '').toUpperCase();
-      if (!symbol) continue;
-      tokenSymbols.add(symbol);
-      if (knownStable.some((stable) => symbol.includes(stable))) stablecoinTransfers += 1;
     if (source.includes('kamino') || source.includes('drift') || source.includes('marginfi')) defiTx += 1;
 
     const transfers = Array.isArray(tx.tokenTransfers) ? tx.tokenTransfers : [];
     for (const t of transfers) {
       const sym = String(t.tokenSymbol ?? '').toUpperCase();
-      if (sym) tokenSymbols.add(sym);
-      if (memeKeywords.some(k => sym.includes(k))) memeTransfers += 1;
+      if (sym) {
+        tokenSymbols.add(sym);
+        if (memeKeywords.some(k => sym.includes(k))) memeTransfers += 1;
+      }
     }
   }
 
   // Calculate normalized scores (0-100)
-  const memeExposure = clamp((memeTransfers / Math.max(1, txCount)) * 200); // 50% transfers = 100 score
+  const memeExposure = clamp((memeTransfers / Math.max(1, txCount)) * 200); 
   const riskScore = clamp((swapTx / Math.max(1, txCount)) * 150 + (memeExposure * 0.3));
   const patienceScore = clamp(100 - (swapTx / Math.max(1, txCount)) * 200);
   const convictionScore = clamp(100 - (swapTx / Math.max(1, txCount)) * 100 + (defiTx * 10));
@@ -117,9 +103,9 @@ export async function GET(request: Request) {
       source: 'wallet' as const,
       metrics,
       insights: [
-        metrics.memeCoinExposure > 60 ? 'Detected high meme coin exposure' : 'Meme exposure remains under control',
-        metrics.lateNightTradingRatio > 45 ? 'Wallet shows late-night trading behavior' : 'Trading activity follows daytime cycles',
-        metrics.portfolioConcentration > 70 ? 'Portfolio concentration is elevated' : 'Portfolio appears diversified',
+        metrics.memeExposure > 60 ? 'Detected high meme coin exposure' : 'Meme exposure remains under control',
+        metrics.riskScore > 70 ? 'Wallet shows high-risk trading behavior' : 'Trading activity follows stable cycles',
+        metrics.diversification > 70 ? 'Portfolio appears diversified' : 'Concentrated asset pattern detected',
       ],
     };
 

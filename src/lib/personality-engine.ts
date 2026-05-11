@@ -98,6 +98,7 @@ export function generatePersonalityResult(input: EngineInput): AnalysisResult {
     calibrationImpact: Math.round(Math.abs(blendFactor - 0.5) * 100),
     mode,
     dataSource,
+    metrics,
     traitScores: finalTraits,
     fallbackReason,
   };

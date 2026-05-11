@@ -25,7 +25,7 @@ export function generateDemoWalletMetrics(quizAnswers: Record<string, 'A' | 'B'>
   };
 }
 
-export function generateSimulatedWalletMetrics(address: string): WalletMetrics {
+export function simulatedWalletMetrics(address: string): WalletMetrics {
   // Deterministic based on address
   let seed = 0;
   for (let i = 0; i < address.length; i++) seed += address.charCodeAt(i);
