@@ -33,13 +33,21 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Use dynamic viewport height to prevent address bar jumps */
+  height: 100dvh;
+  overflow: hidden;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-text-primary);
   font-family: var(--font-body);
+  /* Prevent horizontal wiggle and stabilize vertical */
   overflow-x: hidden;
+  overflow-y: auto;
+  height: 100dvh;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
 }
 
 /* ===== Scrollbar ===== */
