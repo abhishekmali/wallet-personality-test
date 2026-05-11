@@ -44,18 +44,13 @@ export interface WalletData {
 }
 
 export interface WalletMetrics {
-  transactionFrequency: number;
-  tokenDiversity: number;
-  memeCoinExposure: number;
-  tradingVolatility: number;
-  buySellFrequency: number;
-  averageHoldingDurationDays: number;
-  nftActivity: number;
-  defiInteraction: number;
-  stablecoinRatio: number;
-  portfolioConcentration: number;
-  walletAgeDays: number;
-  lateNightTradingRatio: number;
+  txCount: number;
+  memeExposure: number; // 0-100
+  riskScore: number; // 0-100
+  patienceScore: number; // 0-100
+  convictionScore: number; // 0-100
+  diversification: number; // 0-100
+  stabilityScore: number; // 0-100
 }
 
 export interface AnalysisTrait {
@@ -69,7 +64,7 @@ export interface AnalysisResult {
   mode: AnalysisMode;
   dataSource: AnalysisDataSource;
   confidence: number;
-  walletMetrics: WalletMetrics;
+  metrics: WalletMetrics;
   onchainBehavior: string[];
   detectedPatterns: string[];
   walletSignals: string[];

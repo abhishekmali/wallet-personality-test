@@ -49,32 +49,32 @@ function mapTransactionsToMetrics(transactions: any[]): WalletMetrics {
       if (!symbol) continue;
       tokenSymbols.add(symbol);
       if (knownStable.some((stable) => symbol.includes(stable))) stablecoinTransfers += 1;
-      if (memeKeywords.some((keyword) => symbol.includes(keyword))) memeTransfers += 1;
+    if (source.includes('kamino') || source.includes('drift') || source.includes('marginfi')) defiTx += 1;
+
+    const transfers = Array.isArray(tx.tokenTransfers) ? tx.tokenTransfers : [];
+    for (const t of transfers) {
+      const sym = String(t.tokenSymbol ?? '').toUpperCase();
+      if (sym) tokenSymbols.add(sym);
+      if (memeKeywords.some(k => sym.includes(k))) memeTransfers += 1;
     }
   }
 
-  const tokenDiversity = clamp(tokenSymbols.size * 4);
-  const totalTransfers = Math.max(1, stablecoinTransfers + memeTransfers + tokenSymbols.size);
-  const memeExposure = clamp((memeTransfers / totalTransfers) * 100);
-  const stablecoinRatio = clamp((stablecoinTransfers / totalTransfers) * 100);
-  const tradingVolatility = clamp((swapTx / Math.max(1, transactions.length)) * 100);
-  const buySellFrequency = clamp((swapTx / Math.max(1, ageDays)) * 7);
-  const avgHoldingDays = clamp(190 - buySellFrequency * 1.8, 1, 220);
-  const concentration = clamp(100 - Math.min(tokenSymbols.size * 6, 80), 10, 98);
+  // Calculate normalized scores (0-100)
+  const memeExposure = clamp((memeTransfers / Math.max(1, txCount)) * 200); // 50% transfers = 100 score
+  const riskScore = clamp((swapTx / Math.max(1, txCount)) * 150 + (memeExposure * 0.3));
+  const patienceScore = clamp(100 - (swapTx / Math.max(1, txCount)) * 200);
+  const convictionScore = clamp(100 - (swapTx / Math.max(1, txCount)) * 100 + (defiTx * 10));
+  const stabilityScore = clamp(100 - (memeExposure * 0.5) - (swapTx * 0.2));
+  const diversification = clamp(tokenSymbols.size * 5);
 
   return {
-    transactionFrequency: txFrequency,
-    tokenDiversity,
-    memeCoinExposure: memeExposure,
-    tradingVolatility,
-    buySellFrequency,
-    averageHoldingDurationDays: avgHoldingDays,
-    nftActivity: clamp((nftTx / Math.max(1, transactions.length)) * 100),
-    defiInteraction: clamp((defiTx / Math.max(1, transactions.length)) * 100),
-    stablecoinRatio,
-    portfolioConcentration: concentration,
-    walletAgeDays: Math.max(7, ageDays),
-    lateNightTradingRatio: clamp((lateNightTx / Math.max(1, transactions.length)) * 100),
+    txCount,
+    memeExposure,
+    riskScore,
+    patienceScore,
+    convictionScore,
+    diversification,
+    stabilityScore,
   };
 }
 

@@ -1,29 +1,5 @@
-import { Archetype, TraitScore } from './types';
+import { Archetype, TraitScore, WalletMetrics, AnalysisResult } from './types';
 import { archetypes, getArchetypeById } from './archetypes';
-
-export interface WalletMetrics {
-  txCount: number;
-  memeExposure: number; // 0-100
-  riskScore: number; // 0-100
-  patienceScore: number; // 0-100
-  convictionScore: number; // 0-100
-  diversification: number; // 0-100
-  stabilityScore: number; // 0-100
-}
-
-export interface PersonalityResult {
-  archetype: Archetype;
-  confidence: number;
-  onchainBehavior: string[];
-  detectedPatterns: string[];
-  emotionalTraits: string[];
-  walletSignals: string[];
-  calibrationImpact: number;
-  mode: 'wallet' | 'demo';
-  dataSource: 'wallet' | 'simulated';
-  traitScores: TraitScore[];
-  fallbackReason?: string;
-}
 
 interface EngineInput {
   mode: 'wallet' | 'demo';
@@ -33,7 +9,7 @@ interface EngineInput {
   fallbackReason?: string;
 }
 
-export function generatePersonalityResult(input: EngineInput): PersonalityResult {
+export function generatePersonalityResult(input: EngineInput): AnalysisResult {
   const { metrics, quizAnswers, mode, dataSource, fallbackReason } = input;
 
   // 1. Calculate Confidence

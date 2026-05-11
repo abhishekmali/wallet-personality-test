@@ -1,4 +1,4 @@
-import { WalletMetrics } from './personality-engine';
+import { WalletMetrics } from './types';
 
 export function generateDemoWalletMetrics(quizAnswers: Record<string, 'A' | 'B'>): WalletMetrics {
   // We use the quiz answers to "guess" what their wallet might look like in demo mode

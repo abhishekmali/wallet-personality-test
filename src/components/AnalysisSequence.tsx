@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { generateDemoWalletMetrics } from '@/lib/demo-generator';
-import { generatePersonalityResult, WalletMetrics } from '@/lib/personality-engine';
+import { generatePersonalityResult } from '@/lib/personality-engine';
+import { WalletMetrics } from '@/lib/types';
 import { WalletAnalysisApiResponse } from '@/lib/wallet-analysis';
 
 const walletMessages = [
