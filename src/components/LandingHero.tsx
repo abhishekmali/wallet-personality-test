@@ -28,16 +28,18 @@ const itemVariants = {
 };
 
 const badgeData = [
-  { label: 'Diamond Hands', emoji: '💎', color: '#818CF8' },
-  { label: 'Meme Lord', emoji: '🐸', color: '#4ADE80' },
-  { label: 'Panic Seller', emoji: '😱', color: '#FB7185' },
-  { label: 'Midnight Trader', emoji: '🌙', color: '#A78BFA' },
-  { label: 'Yield Farmer', emoji: '🌾', color: '#34D399' },
+  { label: 'Diamond Hands', emoji: '💎', color: '#818CF8', tooltip: 'High-conviction holders who never sell the dip.' },
+  { label: 'Meme Lord', emoji: '🐸', color: '#4ADE80', tooltip: 'The first to spot the next viral token.' },
+  { label: 'Panic Seller', emoji: '😱', color: '#FB7185', tooltip: 'Quick fingers, faster sells. Emotional trading specialist.' },
+  { label: 'Midnight Trader', emoji: '🌙', color: '#A78BFA', tooltip: 'Active when the world sleeps. Night-owl liquidity.' },
+  { label: 'Yield Farmer', emoji: '🌾', color: '#34D399', tooltip: 'Passive income master, chasing the best APYs.' },
 ];
 
 export default function LandingHero() {
   const setPhase = useAppStore((s) => s.setPhase);
+  const scanCount = useAppStore((s) => s.scanCount);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [hoveredBadge, setHoveredBadge] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -149,7 +151,16 @@ export default function LandingHero() {
           className="mt-12 flex items-center justify-center gap-8 text-sm text-text-muted"
         >
           <div className="flex items-center gap-2">
-            <span className="text-primary">12,847</span> wallets analyzed
+            <motion.span 
+              key={scanCount}
+              initial={{ opacity: 0, y: 10, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              className="text-primary font-bold text-base"
+            >
+              {scanCount.toLocaleString()}
+            </motion.span> 
+            wallets analyzed
           </div>
           <div className="w-1 h-1 rounded-full bg-text-muted" />
           <div className="flex items-center gap-2">
@@ -168,37 +179,81 @@ export default function LandingHero() {
         >
           <AnimatePresence>
             {badgeData.map((badge, i) => (
-              <motion.div
-                key={badge.label}
-                className="glass-card flex items-center gap-2 px-4 py-2.5 cursor-default"
-                style={{
-                  border: `1px solid ${badge.color}22`,
-                }}
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{
-                  opacity: 1,
-                  y: [0, -4, 0],
-                  scale: 1,
-                }}
-                transition={{
-                  opacity: { delay: 1.2 + i * 0.15, duration: 0.5 },
-                  y: {
-                    delay: 1.2 + i * 0.15,
-                    duration: 3 + i * 0.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  },
-                  scale: { delay: 1.2 + i * 0.15, duration: 0.5 },
-                }}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: `0 0 20px ${badge.color}33`,
-                  borderColor: `${badge.color}44`,
-                }}
-              >
-                <span className="text-lg">{badge.emoji}</span>
-                <span className="text-sm font-medium text-text-secondary">{badge.label}</span>
-              </motion.div>
+              <div key={badge.label} className="relative">
+                <motion.div
+                  className="glass-card flex items-center gap-2 px-4 py-2.5 cursor-default relative overflow-hidden"
+                  style={{
+                    border: `1px solid ${badge.color}22`,
+                  }}
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{
+                    opacity: 1,
+                    y: [0, -4, 0],
+                    scale: 1,
+                  }}
+                  transition={{
+                    opacity: { delay: 1.2 + i * 0.15, duration: 0.5 },
+                    y: {
+                      delay: 1.2 + i * 0.15,
+                      duration: 3 + i * 0.5,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    },
+                    scale: { delay: 1.2 + i * 0.15, duration: 0.5 },
+                  }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: `0 0 20px ${badge.color}33`,
+                    borderColor: `${badge.color}44`,
+                  }}
+                  onHoverStart={() => setHoveredBadge(badge.label)}
+                  onHoverEnd={() => setHoveredBadge(null)}
+                >
+                  <span className="text-lg">{badge.emoji}</span>
+                  <span className="text-sm font-medium text-text-secondary">{badge.label}</span>
+                  
+                  {/* Subtle hover glow effect */}
+                  {hoveredBadge === badge.label && (
+                    <motion.div 
+                      layoutId="glow"
+                      className="absolute inset-0 pointer-events-none"
+                      style={{ background: `radial-gradient(circle at center, ${badge.color}11 0%, transparent 70%)` }}
+                    />
+                  )}
+                </motion.div>
+
+                <AnimatePresence>
+                  {hoveredBadge === badge.label && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-52 p-4 z-50 pointer-events-none"
+                    >
+                      <div 
+                        className="relative p-3 rounded-xl border shadow-2xl"
+                        style={{ 
+                          backgroundColor: '#0A0F1C',
+                          borderColor: `${badge.color}66`,
+                          boxShadow: `0 10px 40px -10px ${badge.color}66`
+                        }}
+                      >
+                        <div className="font-bold text-[10px] uppercase tracking-widest mb-1.5" style={{ color: badge.color }}>
+                          {badge.label}
+                        </div>
+                        <div className="text-[12px] text-[#F1F5F9] leading-relaxed font-medium">
+                          {badge.tooltip}
+                        </div>
+                        {/* Tip triangle */}
+                        <div 
+                          className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+                          style={{ borderTopColor: '#0A0F1C' }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             ))}
           </AnimatePresence>
         </motion.div>
