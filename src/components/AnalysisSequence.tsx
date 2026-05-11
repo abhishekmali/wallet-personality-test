@@ -23,7 +23,16 @@ const demoMessages = [
 ];
 
 export default function AnalysisSequence() {
-  const { setPhase, setArchetype, setAnalysisResult, walletData, setAnalysisProgress, mode, quizAnswers } = useAppStore();
+  const { 
+    setPhase, 
+    setArchetype, 
+    setAnalysisResult, 
+    walletData, 
+    setAnalysisProgress, 
+    mode, 
+    quizAnswers,
+    incrementScanCount 
+  } = useAppStore();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [dynamicInsight, setDynamicInsight] = useState('Booting behavioral engine...');
@@ -71,8 +80,9 @@ export default function AnalysisSequence() {
     setDynamicInsight(insight);
     setAnalysisResult(result);
     setArchetype(result.archetype);
+    incrementScanCount();
     setPhase('reveal');
-  }, [mode, walletData, quizAnswers, setAnalysisResult, setArchetype, setPhase]);
+  }, [mode, walletData, quizAnswers, setAnalysisResult, setArchetype, setPhase, incrementScanCount]);
 
   useEffect(() => {
     // Progress animation
