@@ -1,12 +1,4 @@
-export interface WalletMetrics {
-  txCount: number;
-  memeExposure: number;
-  riskScore: number;
-  patienceScore: number;
-  convictionScore: number;
-  diversification: number;
-  stabilityScore: number;
-}
+import { WalletMetrics } from './personality-engine';
 
 export function generateDemoWalletMetrics(quizAnswers: Record<string, 'A' | 'B'>): WalletMetrics {
   // We use the quiz answers to "guess" what their wallet might look like in demo mode

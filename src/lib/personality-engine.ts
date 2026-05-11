@@ -1,14 +1,24 @@
 import { Archetype, TraitScore } from './types';
 import { archetypes, getArchetypeById } from './archetypes';
 
+export interface WalletMetrics {
+  txCount: number;
+  memeExposure: number; // 0-100
+  riskScore: number; // 0-100
+  patienceScore: number; // 0-100
+  convictionScore: number; // 0-100
+  diversification: number; // 0-100
+  stabilityScore: number; // 0-100
+}
+
 export interface PersonalityResult {
   archetype: Archetype;
-  confidence: number; // 0-100 based on transaction volume
+  confidence: number;
   onchainBehavior: string[];
   detectedPatterns: string[];
   emotionalTraits: string[];
   walletSignals: string[];
-  calibrationImpact: number; // How much the quiz changed the result
+  calibrationImpact: number;
   mode: 'wallet' | 'demo';
   dataSource: 'wallet' | 'simulated';
   traitScores: TraitScore[];
@@ -18,15 +28,7 @@ export interface PersonalityResult {
 interface EngineInput {
   mode: 'wallet' | 'demo';
   dataSource: 'wallet' | 'simulated';
-  metrics: {
-    txCount: number;
-    memeExposure: number; // 0-100
-    riskScore: number; // 0-100
-    patienceScore: number; // 0-100
-    convictionScore: number; // 0-100
-    diversification: number; // 0-100
-    stabilityScore: number; // 0-100
-  };
+  metrics: WalletMetrics;
   quizAnswers: Record<string, 'A' | 'B'>;
   fallbackReason?: string;
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { generateDemoWalletMetrics } from '@/lib/demo-generator';
-import { generatePersonalityResult } from '@/lib/personality-engine';
+import { generatePersonalityResult, WalletMetrics } from '@/lib/personality-engine';
 import { WalletAnalysisApiResponse } from '@/lib/wallet-analysis';
 
 const walletMessages = [
@@ -32,7 +32,7 @@ export default function AnalysisSequence() {
 
   const finishAnalysis = useCallback(async () => {
     let source: 'wallet' | 'simulated' = mode === 'wallet' ? 'wallet' : 'simulated';
-    let metrics;
+    let metrics: WalletMetrics;
     let fallbackReason: string | undefined;
     let insight = 'Behavior model calibrated successfully.';
 
