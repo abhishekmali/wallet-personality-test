@@ -241,6 +241,30 @@ export const archetypes: Archetype[] = [
     icon: '💔',
     mood: 'volatile',
   },
+  {
+    id: 'the-ghost',
+    title: 'The Ghost',
+    emoji: '👻',
+    tagline: 'A blank slate in a world of noise.',
+    description: 'Your wallet has virtually no transaction history. You are a mystery to the blockchain—a silent observer. While you haven\'t left a footprint yet, your psychological profile suggests a unique path ahead.',
+    strengths: ['Invisible to hunters', 'Zero bad habits', 'Fresh perspective'],
+    weaknesses: ['No track record', 'Analysis paralysis', 'Untested conviction'],
+    memeObservation: 'You\'re so new to this that even the rug-pullers don\'t know you exist yet. Enjoy the anonymity while it lasts.',
+    emotionalTendency: 'Calm and observant. You\'re like a player standing at the edge of the casino, watching the lights.',
+    gradient: 'linear-gradient(135deg, #94A3B8 0%, #64748B 50%, #475569 100%)',
+    gradientColors: ['#94A3B8', '#475569'],
+    accentColor: '#94A3B8',
+    traits: [
+      { name: 'Risk Appetite', value: 0, color: '#94A3B8' },
+      { name: 'Conviction', value: 0, color: '#64748B' },
+      { name: 'Emotional Stability', value: 100, color: '#475569' },
+      { name: 'Meme Exposure', value: 0, color: '#FF4FD8' },
+      { name: 'Patience', value: 100, color: '#7C5CFF' },
+      { name: 'Diversification', value: 0, color: '#00D4FF' },
+    ],
+    icon: '👤',
+    mood: 'mysterious',
+  },
 ];
 
 export function getRandomArchetype(seed?: string): Archetype {
